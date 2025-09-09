@@ -1,5 +1,6 @@
 package com.example.practicas
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
@@ -9,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,14 +25,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.currentCompositionLocalContext
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -59,6 +65,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PantallaPrincipal(name: String, modifier: Modifier = Modifier) {
+val context: Context = LocalContext.current
+    var valora by remember { mutableStateOf("") }
+    var valorb by remember { mutableStateOf("") }
+    var resultado by remember { mutableStateOf("") }
     var nombre by remember { mutableStateOf("Carlos Adrian Treviño")}
     Column (modifier = modifier
         .fillMaxSize()
@@ -91,6 +101,38 @@ fun PantallaPrincipal(name: String, modifier: Modifier = Modifier) {
                 .height(50.dp)
         ) {
             Text(text = "Enviar", fontSize = 18.sp)
+        }
+        Row(modifier.padding(16.dp)) {
+            OutlinedTextField(
+                value = valora,
+                label = {Text("Primer valor")},
+                onValueChange = {valora = it}
+            )
+        }
+        Row(modifier.padding(16.dp)) {
+            OutlinedTextField(
+                value = valorb,
+                label = {Text("Segundo valor")},
+                onValueChange = {valorb = it}
+            )
+        }
+        Row(Modifier.align(Alignment.CenterHorizontally)
+        ){
+            OutlinedButton(onClick = {/*TODO*/
+            val a =  valora.toInt()
+            val b = valorb.toInt()
+            val c = a+b
+            resultado = c.toString()
+            }) {
+                Text(text = "Enviar")
+            }
+        }
+        Row(modifier.padding(16.dp)) {
+            OutlinedTextField(
+                value = resultado,
+                label = {Text("Resultado")},
+                onValueChange = {resultado = it}
+            )
         }
     }
 }
