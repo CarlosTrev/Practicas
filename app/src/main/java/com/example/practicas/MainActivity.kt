@@ -1,138 +1,191 @@
 package com.example.practicas
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.currentCompositionLocalContext
-
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.practicas.ui.theme.PracticasTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PracticasTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    PantallaPrincipal(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            PantallaPrincipal()
+        }
+    }
+}
+
+@Composable
+fun PantallaPrincipal() {
+    var expression by remember { mutableStateOf("") }
+    var result by remember { mutableStateOf("") }
+
+    val buttons = listOf(
+        listOf("7", "8", "9", "/"),
+        listOf("4", "5", "6", "*"),
+        listOf("1", "2", "3", "-"),
+        listOf("0", ".", "=", "+"),
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        // Pantalla
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .background(Color.Black),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            Text(
+                text = expression,
+                fontSize = 28.sp,
+                color = Color.Red,
+                maxLines = 3
+            )
+            Text(
+                text = result,
+                fontSize = 36.sp,
+                color = Color.White
+            )
+        }
+
+        // Botones borrar y limpiar
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = { if (expression.isNotEmpty()) expression = expression.dropLast(1) },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
+                modifier = Modifier.weight(1f).padding(4.dp)
+            ) {
+                Text("⌫", fontSize = 22.sp, color = Color.White)
+            }
+            Button(
+                onClick = {
+                    expression = ""
+                    result = ""
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
+                modifier = Modifier.weight(1f).padding(4.dp)
+            ) {
+                Text("C", fontSize = 22.sp, color = Color.White)
+            }
+        }
+
+        // Teclado
+        buttons.forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                row.forEach { label ->
+                    Button(
+                        onClick = {
+                            when (label) {
+                                "=" -> {
+                                    try {
+                                        val evalResult = eval(expression)
+                                        result = evalResult.toString()
+                                    } catch (e: Exception) {
+                                        result = "Error"
+                                    }
+                                }
+                                else -> expression += label
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (label in listOf("/", "*", "-", "+", "=")) Color.Red else Color.DarkGray
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(4.dp)
+                    ) {
+                        Text(label, fontSize = 22.sp, color = Color.White)
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun PantallaPrincipal(name: String, modifier: Modifier = Modifier) {
-val context: Context = LocalContext.current
-    var valora by remember { mutableStateOf("") }
-    var valorb by remember { mutableStateOf("") }
-    var resultado by remember { mutableStateOf("") }
-    var nombre by remember { mutableStateOf("Carlos Adrian Treviño")}
-    Column (modifier = modifier
-        .fillMaxSize()
-        .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center){
-        TextField(
-            value = nombre,
-            onValueChange = { nombre = it },
-            modifier = Modifier
-                .fillMaxWidth(0.8f), // 80% del ancho de la pantalla
-            textStyle = androidx.compose.ui.text.TextStyle(
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-        )
-        Spacer(modifier = Modifier.height(20.dp))
+// Evaluador matemático (respeta jerarquía de operaciones)
+fun eval(expr: String): Double {
+    return object {
+        var i = -1
+        var ch = 0
 
-        Button(
-            onClick = { /* TODO */ },
-            shape = CutCornerShape(40.dp),
-            border = BorderStroke(3.dp, Color.Black),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Red,
-                contentColor = Color.White
-            ),
-            modifier = Modifier
-                .width(150.dp)
-                .height(50.dp)
-        ) {
-            Text(text = "Enviar", fontSize = 18.sp)
+        fun nextChar() { ch = if (++i < expr.length) expr[i].code else -1 }
+        fun eat(charToEat: Int): Boolean {
+            while (ch == ' '.code) nextChar()
+            if (ch == charToEat) {
+                nextChar()
+                return true
+            }
+            return false
         }
-        Row(modifier.padding(16.dp)) {
-            OutlinedTextField(
-                value = valora,
-                label = {Text("Primer valor")},
-                onValueChange = {valora = it}
-            )
+
+        fun parse(): Double {
+            nextChar()
+            val x = parseExpression()
+            if (i < expr.length) throw RuntimeException("Unexpected: " + expr[i])
+            return x
         }
-        Row(modifier.padding(16.dp)) {
-            OutlinedTextField(
-                value = valorb,
-                label = {Text("Segundo valor")},
-                onValueChange = {valorb = it}
-            )
-        }
-        Row(Modifier.align(Alignment.CenterHorizontally)
-        ){
-            OutlinedButton(onClick = {/*TODO*/
-            val a =  valora.toInt()
-            val b = valorb.toInt()
-            val c = a+b
-            resultado = c.toString()
-            }) {
-                Text(text = "Enviar")
+
+        fun parseExpression(): Double {
+            var x = parseTerm()
+            while (true) {
+                when {
+                    eat('+'.code) -> x += parseTerm()
+                    eat('-'.code) -> x -= parseTerm()
+                    else -> return x
+                }
             }
         }
-        Row(modifier.padding(16.dp)) {
-            OutlinedTextField(
-                value = resultado,
-                label = {Text("Resultado")},
-                onValueChange = {resultado = it}
-            )
+
+        fun parseTerm(): Double {
+            var x = parseFactor()
+            while (true) {
+                when {
+                    eat('*'.code) -> x *= parseFactor()
+                    eat('/'.code) -> x /= parseFactor()
+                    else -> return x
+                }
+            }
         }
-    }
+
+        fun parseFactor(): Double {
+            if (eat('+'.code)) return parseFactor() // unario +
+            if (eat('-'.code)) return -parseFactor() // unario -
+
+            var x: Double
+            val startPos = i
+            if (eat('('.code)) {
+                x = parseExpression()
+                eat(')'.code)
+            } else if (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) {
+                while (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) nextChar()
+                x = expr.substring(startPos, i).toDouble()
+            } else {
+                throw RuntimeException("Unexpected: " + ch.toChar())
+            }
+            return x
+        }
+    }.parse()
 }
