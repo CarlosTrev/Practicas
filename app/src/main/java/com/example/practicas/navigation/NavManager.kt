@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.practicas.view.*
 
+import com.example.practicas.view.*
 
 @Composable
 fun NavManager() {
@@ -22,11 +22,36 @@ fun NavManager() {
         composable("Home") {
             HomeView(navController)
         }
-        /*composable("apantalla") {
+        composable("apantalla") {
             APantalla(navController)
-        }*/
+        }
         composable("npantalla") {
             NPantalla(navController)
+        }
+        composable("cowboys") {
+            Cowboys(navController)
+        }
+        composable("bears") {
+            Bears(navController)
+        }
+        composable("Eagles") {
+            Eagles(navController)
+        }
+        composable("Giants") {
+            Giants(navController)
+        }
+        composable ("Cincinati")
+        {
+            Cincinati(navController)
+        }
+        composable ("Baltimore"){
+            Baltimore(navController)
+        }
+        composable ("Bills"){
+            Bills(navController)
+        }
+        composable ("Jets"){
+            Jets(navController)
         }
     }
 }
